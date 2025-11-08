@@ -1,11 +1,13 @@
 {
   "build": {
-    "builder": "NIXPACKS",
     "commands": [
-      "./mvnw clean package -DskipTests -f pom.xml"
+      "./mvnw clean package -DskipTests"
     ]
   },
   "deploy": {
-    "startCommand": "java -jar target/*.jar --server.port=${PORT}"
+    "startCommand": "java -jar target/*.jar",
+    "healthcheckPath": "/",
+    "restartPolicyType": "on_failure",
+    "port": 8080
   }
 }
