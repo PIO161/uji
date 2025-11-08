@@ -1,5 +1,6 @@
 {
   "build": {
+    "builder": "NIXPACKS",
     "commands": [
       "./mvnw clean package -DskipTests -f pom.xml"
     ]
