@@ -134,11 +134,14 @@ header {
 }
 
 .btn {
-    padding: 7px 16px;
+    padding: 10px 20px;
     border: 2px solid var(--second-color);
     border-radius: 40px;
     color: var(--second-color);
     font-weight: 500;
+    display: inline-block;   /* atau inline-flex */
+    white-space: nowrap;
+    width:auto
 }
 
 .btn:hover {
