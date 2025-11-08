@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<section class="login">
+    <div class="login-container">
+        <h1>Log In</h1>
+        <p>Masukkan email dan password Anda untuk melanjutkan</p>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Masukkan email Anda" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
+            </div>
+            <button type="submit" class="btn">Log In</button>
+        </form>
+
+        <a href="register.html" class="back-link">Belum punya akun? Register</a>
+        <a href="/login-admin" class="back-link">Admin?</a>
+    </div>
+</section>
+
+<!-- JavaScript untuk mengirim form dan menangani pengalihan -->
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Mencegah form submit biasa
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const requestBody = {
+            email: email,
+            password: password
+        };
+
+        fetch('/login/customer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody) // Mengirimkan data dalam format JSON
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirectUrl) {
+                // Redirect ke halaman index.html jika login berhasil
+                window.location.href = data.redirectUrl;
+            } else {
+                alert('Login failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat login');
+        });
+    });
+</script>
+
+<!-- CSS -->
+<style>
+    :root {
+        --main-color: #4e684e;  /* warna hijau utama */
+        --second-color: #888;   /* warna abu teks sekunder */
+        --bg-color: #fdf6ec;    /* warna krem latar */
+        --input-bg: #f0e8d9;    /* warna input field */
+        --accent-color: #e74c3c; /* warna merah untuk link seperti "Forgot Password" */
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .login-container {
+        background: white;
+        width: 400px;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px 30px;
+        text-align: center;
+        position: relative;
+    }
+
+    .login-container h1 {
+        font-size: 2rem;
+        color: var(--main-color);
+        margin-bottom: 10px;
+    }
+
+    .login-container p {
+        color: var(--second-color);
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .input-group label {
+        font-size: 0.9rem;
+        color: var(--main-color);
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 12px 15px;
+        font-size: 1rem;
+        border-radius: 12px;
+        background-color: var(--input-bg);
+        border: none;
+        outline: none;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px;
+        background: var(--main-color);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .btn:hover {
+        background: #3e5540;
+    }
+
+    .back-link {
+        display: block;
+        margin-top: 15px;
+        color: var(--main-color);
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    .back-link.accent {
+        color: var(--accent-color);
+        font-weight: 500;
+    }
+
+    /* Social login style (optional enhancement) */
+    .social-login {
+        margin: 25px 0;
+    }
+
+    .social-login p {
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+        color: var(--second-color);
+    }
+
+    .social-icons {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .social-icons img {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--main-color);
+        padding: 8px;
+        transition: transform 0.2s;
+        cursor: pointer;
+    }
+
+    .social-icons img:hover {
+        transform: scale(1.1);
+        background: #3e5540;
+    }
+</style>
+
+</body>
+
+</html>

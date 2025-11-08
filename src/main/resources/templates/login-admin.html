@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<section class="login">
+    <div class="login-container">
+        <h1>Log In Admin</h1>
+        <p>Masukkan email dan password Anda untuk melanjutkan</p>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Masukkan email Anda" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
+            </div>
+            <button type="submit" class="btn">Log In</button>
+        </form>
+    </div>
+</section>
+
+<!-- JavaScript untuk mengirim form dan menangani pengalihan -->
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Mencegah form submit biasa
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const requestBody = {
+            email: email,
+            password: password
+        };
+
+        fetch('/login/admin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody) // Mengirimkan data dalam format JSON
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirectUrl) {
+                // Redirect ke halaman index.html jika login berhasil
+                window.location.href = data.redirectUrl;
+            } else {
+                alert('Login failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat login');
+        });
+    });
+</script>
+
+<!-- CSS -->
+<style>
+    :root {
+        --main-color: #4e684e;        /* warna hijau utama */
+        --second-color: #999999;      /* warna teks sekunder */
+        --bg-color: #fdf6ec;          /* latar belakang krem */
+        --input-bg: #f5eee2;          /* warna input */
+        --btn-hover: #3e5540;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .login-container {
+        background: white;
+        width: 400px;
+        max-width: 90%;
+        padding: 40px 30px;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .login-container h1 {
+        font-size: 2rem;
+        color: var(--main-color);
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .login-container p {
+        font-size: 1rem;
+        color: var(--second-color);
+        margin-bottom: 30px;
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .input-group label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--main-color);
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border-radius: 12px;
+        background-color: var(--input-bg);
+        border: none;
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+
+    .input-group input:focus {
+        outline: 2px solid var(--main-color);
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 12px;
+        background: var(--main-color);
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn:hover {
+        background: var(--btn-hover);
+    }
+
+    .back-link {
+        display: block;
+        margin-top: 20px;
+        font-size: 0.9rem;
+        color: var(--main-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+        .login-container {
+            padding: 30px 20px;
+        }
+
+        .login-container h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+</body>
+
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Struk & Live Tracking Pesanan</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 40px;
+      background-color: #fdf6ec;
+      color: #2e2e2e;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #3e643f;
+    }
+
+    .order-info {
+      display: flex;
+      justify-content: space-between;
+      background-color: #f3e6c5;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 40px;
+    }
+
+    .info-item {
+      text-align: left;
+    }
+
+    .tracking-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+
+    .circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #b5c9a0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      z-index: 2;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    .circle.active {
+      background-color: #4CAF50; /* Hijau terang */
+      color: white;
+    }
+
+    .line {
+      height: 6px;
+      background-color: #e0e0e0; /* abu muda default */
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      right: -50%;
+      z-index: 1;
+      transition: background-color 0.4s ease;
+    }
+
+    .line.active {
+      background-color: #4CAF50; /* Hijau terang saat aktif */
+    }
+
+    .label {
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .back-btn {
+      margin-top: 40px;
+      display: block;
+      width: 200px;
+      text-align: center;
+      padding: 10px;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 25px;
+      background-color: #3e643f;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    @media screen and (max-width: 768px) {
+      .tracking-section {
+        flex-direction: column;
+      }
+
+      .line {
+        display: none;
+      }
+
+      .step {
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Terima kasih atas pesanan Anda</h1>
+    </div>
+
+    <div class="order-info">
+      <div class="info-item">
+        <p><strong>Nomor Pesanan:</strong> <span id="order-number">#<span id="pesanan-id"></span></span></p>
+        <p><strong>Waktu Ambil:</strong> 08.00 WIB</p>
+        <p><strong>Lokasi Ambil:</strong> Tanjung Duren Utara</p>
+        <p><strong>Status Saat Ini:</strong> <span id="status">Memuat...</span></p>
+      </div>
+    </div>
+
+    <div class="tracking-section">
+      <div class="step" data-status="1">
+        <div class="circle" id="step1">1</div>
+        <div class="line" id="line1"></div>
+        <div class="label">Order Diterima</div>
+      </div>
+      <div class="step" data-status="2">
+        <div class="circle" id="step2">2</div>
+        <div class="line" id="line2"></div>
+        <div class="label">Sedang Diproses</div>
+      </div>
+      <div class="step" data-status="3">
+        <div class="circle" id="step3">3</div>
+        <div class="label">Siap Diambil</div>
+      </div>
+    </div>
+
+    <a href="ind.html" class="back-btn">Kembali ke Beranda</a>
+    <a href="customer" class="back-btn">Kembali ke Keranjang</a>
+  </div>
+
+  <script>
+    const pesananId = localStorage.getItem("lastPesananId") || 1;
+    document.getElementById("pesanan-id").innerText = pesananId;
+
+    function updateTracking() {
+      fetch(`/api/pesanan/${pesananId}/status`)
+        .then(res => res.text())
+        .then(status => {
+          document.getElementById("status").innerText = status;
+
+          const stepMap = {
+            "Order Diterima": 1,
+            "Sedang Diproses": 2,
+            "Siap Diambil": 3
+          };
+
+          const activeStep = stepMap[status];
+
+          // Reset semua langkah
+          for (let i = 1; i <= 3; i++) {
+            document.getElementById(`step${i}`).classList.remove("active");
+            const line = document.getElementById(`line${i}`);
+            if (line) line.classList.remove("active");
+          }
+
+          // Aktifkan lingkaran & garis jika status sesuai
+          if (activeStep) {
+            for (let i = 1; i <= activeStep; i++) {
+              document.getElementById(`step${i}`).classList.add("active");
+              if (i > 1) {
+                const prevLine = document.getElementById(`line${i - 1}`);
+                if (prevLine) prevLine.classList.add("active");
+              }
+            }
+          }
+        })
+        .catch(err => {
+          document.getElementById("status").innerText = "Gagal memuat status";
+          console.error(err);
+        });
+    }
+
+    updateTracking();
+    setInterval(updateTracking, 5000);
+  </script>
+</body>
+</html>

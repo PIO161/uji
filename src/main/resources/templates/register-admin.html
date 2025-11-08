@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Register</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+</head>
+
+<body>
+<section class="register">
+  <div class="register-container">
+    <h1>Register Admin</h1>
+    <p>Buat akun baru untuk memesan kopi</p>
+
+    <!-- Form dengan type button dan id untuk event listener -->
+    <form id="registerForm">
+      <!-- Field Nama -->
+      <div class="input-group">
+        <label for="nama">Nama:</label>
+        <input type="text" id="nama" name="name" placeholder="Masukkan nama Anda" required>
+      </div>
+
+      <!-- Field Email -->
+      <div class="input-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" placeholder="Masukkan email Anda" required>
+      </div>
+
+      <!-- Field Password -->
+      <div class="input-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
+      </div>
+
+      <!-- Tombol Submit -->
+      <button type="button" id="submitButton" class="btn">Buat Sekarang</button>
+    </form>
+
+    <a th:href="@{/login-admin}" class="back-link">Sudah punya akun? Log In</a>
+  </div>
+</section>
+
+<script>
+  document.getElementById("submitButton").addEventListener("click", async () => {
+      // Ambil nilai input
+      const name = document.getElementById("nama").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+          // Kirim data sebagai JSON menggunakan fetch
+          const response = await fetch("/register/admin", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name, email, password }),
+          });
+
+          if (response.ok) {
+              alert("Registrasi berhasil! Anda akan diarahkan ke halaman login.");
+              window.location.href = "/login-admin";
+          } else {
+              const errorMessage = await response.text();
+              alert(`Error: ${errorMessage}`);
+          }
+      } catch (error) {
+          console.error("Error:", error);
+          alert("Terjadi kesalahan, silakan coba lagi.");
+      }
+  });
+</script>
+
+<!-- CSS -->
+<style>
+  body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #ebdbc8;
+  }
+
+  .register-container {
+      text-align: center;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+  }
+
+  .register-container h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+  }
+
+  .input-group {
+      margin-bottom: 15px;
+      text-align: left;
+  }
+
+  .input-group label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+  }
+
+  .input-group input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #aaa;
+  }
+
+  .btn {
+      padding: 10px 20px;
+      border-radius: 5px;
+      background: #007bff;
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      cursor: pointer;
+  }
+
+  .back-link {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #007bff;
+      text-decoration: none;
+  }
+</style>
+</body>
+
+</html>

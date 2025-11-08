@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Menu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<section th:if="${user != null}" class="add-menu">
+    <div class="add-menu-container">
+        <h1>Tambah Menu</h1>
+        <form id="addMenuForm">
+            <div class="input-group">
+                <label for="namaMenu">Nama Menu:</label>
+                <input type="text" id="namaMenu" name="namaMenu" placeholder="Masukkan nama menu" required>
+            </div>
+            <div class="input-group">
+                <label for="harga">Harga:</label>
+                <input type="number" id="harga" name="harga" placeholder="Masukkan harga menu" required>
+            </div>
+            <div class="input-group">
+                <label for="promo">Promo:</label>
+                <input type="text" id="promo" name="promo" placeholder="Masukkan promo (opsional)">
+            </div>
+            <div class="input-group">
+                <label for="image">Image:</label>
+                <input type="text" id="image" name="image" placeholder="Masukkan image" required>
+            </div>
+            <button type="submit" class="btn">Tambah Menu</button>
+            <a href="/admin" class="back-link">Selesai </a>
+        </form>
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById('addMenuForm');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah form submit biasa
+
+            const namaMenu = document.getElementById('namaMenu').value;
+            const harga = document.getElementById('harga').value;
+            const promo = document.getElementById('promo').value;
+            const image = document.getElementById('image').value;
+            const requestBody = {
+                namaMenu: namaMenu,
+                harga: harga,
+                promo: promo,
+                image: image
+            };
+
+            fetch('/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody) // Mengirimkan data dalam format JSON
+            })
+            .then(response => response.json()) // Mengambil respons dalam bentuk JSON
+            .then(data => {
+                if (data.message) { // Jika ada pesan dalam respons
+                    alert(data.message); // Menampilkan pesan sukses atau error
+                    form.reset(); // Mereset form
+                } else {
+                    alert("Terjadi kesalahan, silakan coba lagi.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menambahkan menu: ' + error.message);
+            });
+        });
+    } else {
+        console.warn("Form tidak ditemukan. Pastikan elemen form dirender ke halaman.");
+    }
+});
+
+
+
+</script>
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #ebdbc8;
+    }
+
+    .add-menu-container {
+        text-align: center;
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .add-menu-container h1 {
+        color: #4CAF50;
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .input-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    .input-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #4CAF50;
+        font-size: 1rem;
+    }
+
+    .input-group input:focus {
+        border-color: #2E8B57;
+        outline: none;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 50px;
+        background: #4CAF50;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background: #2E8B57;
+    }
+</style>
+</body>
+
+</html>

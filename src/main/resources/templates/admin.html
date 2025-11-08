@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Menu</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul class="menu">
+            <li><a href="/login-admin">Login</a></li>
+            <li><a href="/listmenu" class="active">List Menu</a></li>
+            <li><a href="/ind.html" >Dashboard</a></li>
+            <li><a href="/orders.html">Daftar Pesanan</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+        <h2>List Menu</h2>
+        <button th:if="${user != null}" onclick="window.location.href='/add-menu'" class="btn">Add Menu</button>
+
+        <!-- Tampilkan pesan error jika tidak ada data -->
+        <div th:if="${errorMessage != null}" class="error">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <!-- Tabel data menu -->
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Menu Name</th>
+                <th>Price</th>
+                <th>Promo</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="menu : ${menus}">
+                <td th:text="${menu.id}"></td>
+                <td th:text="${menu.namaMenu}"></td>
+                <td th:text="${menu.harga}"></td>
+                <td th:text="${menu.promo}"></td>
+                <td th:text="${menu.image}"></td>
+                <td>
+                    <button th:if="${user != null && user.startsWith('Admin')}"
+                            th:onclick="'window.location.href=\'/update-menu/' + ${menu.id} + '\''"
+                            class="btn">Update</button>
+                    <button th:if="${user != null}" th:onclick="'deleteMenu(' + ${menu.id} + ')'" class="btn">Delete</button>
+
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </main>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const menuElements = document.querySelectorAll("tbody tr");
+        if (menuElements.length === 0) {
+            console.log("Data menu kosong atau tidak diterima dari server.");
+        } else {
+            console.log(`Jumlah menu ditemukan: ${menuElements.length}`);
+            menuElements.forEach(row => console.log(row.innerText));
+        }
+    });
+    function deleteMenu(id) {
+        if (confirm(`Apakah Anda yakin ingin menghapus menu dengan ID ${id}?`)) {
+            fetch(`/menu/delete/${id}`, { method: 'DELETE' })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Gagal menghapus menu.');
+                    }
+                    alert('Menu berhasil dihapus.');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat menghapus menu: ' + error.message);
+                });
+        }
+    }
+</script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        display: flex;
+    }
+
+    .admin-dashboard {
+        display: flex;
+        width: 100%;
+    }
+
+    .sidebar {
+        width: 20%;
+        background: #2c3e50;
+        color: white;
+        padding: 20px;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .menu {
+        list-style: none;
+        padding: 0;
+    }
+
+    .menu li {
+        margin: 15px 0;
+    }
+
+    .menu a {
+        text-decoration: none;
+        color: white;
+        font-size: 1.1rem;
+    }
+
+    .menu a.active {
+        color: #1abc9c;
+    }
+
+    .menu a:hover {
+        color: #1abc9c;
+    }
+
+    .content {
+        width: 80%;
+        padding: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        background: #1abc9c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background: #16a085;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
+
+    th {
+        background: #2c3e50;
+        color: white;
+    }
+
+    .error {
+        color: red;
+        margin: 10px 0;
+    }
+</style>
+</body>
+</html>

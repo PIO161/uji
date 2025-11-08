@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<section class="login">
+    <div class="login-container">
+        <h1>Log In</h1>
+        <p>Masukkan email dan password Anda untuk melanjutkan</p>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Masukkan email Anda" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
+            </div>
+            <button type="submit" class="btn">Log In</button>
+        </form>
+
+        <a href="register.html" class="back-link">Belum punya akun? Register</a>
+    </div>
+</section>
+
+<!-- JavaScript untuk mengirim form dan menangani pengalihan -->
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Mencegah form submit biasa
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const requestBody = {
+            email: email,
+            password: password
+        };
+
+        fetch('/login/customer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody) // Mengirimkan data dalam format JSON
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirectUrl) {
+                // Redirect ke halaman index.html jika login berhasil
+                window.location.href = data.redirectUrl;
+            } else {
+                alert('Login failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat login');
+        });
+    });
+</script>
+
+<!-- CSS -->
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #ebdbc8;
+    }
+
+    .login-container {
+        text-align: center;
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .login-container h1 {
+        color: var(--main-color);
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .login-container p {
+        font-size: 1rem;
+        color: var(--second-color);
+        margin-bottom: 20px;
+    }
+
+    .input-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    .input-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: var(--second-color);
+        margin-bottom: 5px;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid var(--main-color);
+        font-size: 1rem;
+    }
+
+    .input-group input:focus {
+        border-color: var(--second-color);
+        outline: none;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 50px;
+        background: var(--main-color);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background: var(--second-color);
+    }
+
+    .back-link {
+        display: block;
+        margin-top: 15px;
+        font-size: 0.9rem;
+        color: var(--second-color);
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        color: var(--main-color);
+    }
+</style>
+</body>
+
+</html>

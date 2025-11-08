@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+</head>
+
+<body>
+    <section class="payment container">
+        <div class="heading">
+            <h2>Pembayaran</h2>
+        </div>
+        <div class="payment-form">
+            <div class="form-group">
+                <label for="name">Nama Pemesan:</label>
+                <span id="name">Loading...</span>
+            </div>
+            <div class="form-group">
+                <label for="pesanan">Pesanan:</label>
+                <span id="pesanan">1x Kopi Selebew</span>
+            </div>
+            <div class="form-group">
+                <label for="total">Total:</label>
+                <span id="total">Loading...</span>
+            </div>
+            <div class="form-group">
+                <label for="payment-method">Metode Pembayaran:</label>
+                <select id="payment-method" onchange="tampilkanInstruksi();" required>
+                    <option value="">-- Pilih Metode --</option>
+                    <option value="va">Transfer Virtual Account</option>
+                    <option value="qris">QRIS / E-Wallet</option>
+                    <option value="cash">Cash</option>
+                </select>
+            </div>
+            <div class="form-group" id="instruksi-bayar"></div>
+            <div class="form-group">
+                <button type="button" class="btn-submit" onclick="prosesPembayaran();">Selesaikan Pembayaran</button>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-padding-top: 3rem;
+            scroll-behavior: smooth;
+            font-family: var(--poppins-font);
+        }
+
+        :root {
+            --main-color: #008148;
+            --second-color: #1e3932;
+            --poppins-font: "Poppins", sans-serif;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #ebdbc8;
+        }
+
+        .container {
+            text-align: center;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .heading h2 {
+            font-size: 2rem;
+            color: var(--main-color);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--second-color);
+            margin-bottom: 5px;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--main-color);
+            font-size: 1rem;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            border-color: var(--second-color);
+            outline: none;
+        }
+
+        .btn-submit {
+            border: 2px solid;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: var(--main-color);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background: var(--second-color);
+        }
+    </style>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const pesananId = urlParams.get('pesananId');
+
+        if (!pesananId) {
+            alert("Pesanan ID tidak ditemukan!");
+            window.location.href = "/listmenu.html";
+        }
+
+        fetch(`/api/pesanan/${pesananId}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Gagal mengambil data pesanan.');
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('name').textContent = data.customer.nama;
+                document.getElementById('pesanan').textContent = `1x ${data.menu.namaMenu}`;
+                document.getElementById('total').textContent = `Rp ${data.harga}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Gagal menampilkan data pesanan: ' + error.message);
+            });
+
+        function prosesPembayaran() {
+            if (!pesananId) {
+                alert("Pesanan ID tidak valid!");
+                return;
+            }
+
+            fetch(`/api/pesanan/${pesananId}?status=Sukses Pembayaran`, {
+                method: 'PUT'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Gagal update status.');
+                    return response.json();
+                })
+                .then(data => {
+                    localStorage.setItem("lastPesananId", pesananId);
+                    window.location.href = '/nota.html';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat memproses pembayaran: ' + error.message);
+                });
+        }
+
+        function tampilkanInstruksi() {
+            const metode = document.getElementById("payment-method").value;
+            const target = document.getElementById("instruksi-bayar");
+
+            if (metode === "qris") {
+                target.innerHTML = `
+                    <p>Silakan scan QR Code berikut:</p>
+                    <img src="/img/qris.jpg" alt="QRIS" width="200"><br>
+                    <small>a.n. TOKO SELEBEW</small>
+                `;
+            } else if (metode === "va") {
+                target.innerHTML = `
+                    <p>Silakan transfer ke:</p>
+                    <p><strong>Bank BCA</strong><br>
+                    Virtual Account: <strong>1234567890</strong><br>
+                    a.n. TOKO SELEBEW</p>
+                `;
+            } else {
+                target.innerHTML = "";
+            }
+        }
+    </script>
+</body>
+
+</html>

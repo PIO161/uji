@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Customer Panel</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body th:attr="data-customer-id=${customerId}">
+<div class="customer-dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>Customer Panel</h2>
+        <ul class="menu">
+            <li><a href="/customer" class="active">All Pesanan</a></li>
+            <li><a id="listMenuLink">List Menu</a></li>
+            <li><a href="/ind.html" >Dashboard</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+        <h2>All Pesanan</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Order Name</th>
+                <th>Total Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="pesananTableBody">
+            <!-- Pesanan rows will be dynamically loaded here -->
+            </tbody>
+        </table>
+    </main>
+</div>
+
+<script>
+    const customerId = document.body.dataset.customerId || localStorage.getItem('customerId');
+
+    if (!customerId || isNaN(customerId)) {
+        console.error("Customer ID is not valid or undefined.");
+        alert("Error: Customer ID is missing. Please log in again.");
+        window.location.href = "/login.html"; // Redirect ke halaman login
+    } else {
+        document.getElementById("listMenuLink").href = `/listmenu?customerId=${customerId}`;
+
+        fetch(`/api/pesanan/customer/${customerId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const tableBody = document.getElementById("pesananTableBody");
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5">No pesanan found</td></tr>`;
+                return;
+            }
+            data.forEach(pesanan => {
+                const row = document.createElement("tr");
+                const orderName = pesanan.menu.namaMenu;
+                const totalPrice = pesanan.harga;
+                const status = pesanan.status;
+
+                let actionsHTML = `
+                 <button class="btn-track" onclick="redirectToNota(${pesanan.id})">Tracking</button>`;
+
+                if (status !== "Sukses Pembayaran") {
+                actionsHTML += `
+                <button class="btn" onclick="deletePesanan(${pesanan.id})">Delete</button>
+                <button class="btn-pay" onclick="redirectToPayment(${pesanan.id})">Pay</button>`;
+}
+
+                row.innerHTML = `
+                    <td>${pesanan.id}</td>
+                    <td>${orderName}</td>
+                    <td>${totalPrice}</td>
+                    <td>${status}</td>
+                    <td>${actionsHTML}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching pesanan:", error);
+            alert("Failed to load pesanan data. Please try again later.");
+        });
+    }
+
+    function redirectToPayment(pesananId) {
+        window.location.href = `/pembayaran.html?pesananId=${pesananId}`;
+    }
+
+    function redirectToNota(pesananId) {
+    window.location.href = `/nota.html?pesananId=${pesananId}`;
+    }
+
+    function deletePesanan(id) {
+        if (confirm(`Are you sure you want to delete pesanan with ID ${id}?`)) {
+            fetch(`/api/pesanan/${id}`, { method: 'DELETE' })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete pesanan.');
+                    }
+                    alert('Pesanan berhasil dihapus.');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat menghapus pesanan: ' + error.message);
+                });
+        }
+    }
+</script>
+
+<style>
+    /* Styling */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        background-color: #F9F4E7; /* Krem background */
+    }
+
+    .customer-dashboard {
+        display: flex;
+        width: 100%;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+        width: 20%;
+        background: #008148; /* Hijau muda */
+        color: white;
+        padding: 20px;
+        height: 1000px;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 1.5rem;
+        letter-spacing: 1px;
+    }
+
+    .menu {
+        list-style: none;
+        padding: 0;
+    }
+
+    .menu li {
+        margin: 15px 0;
+    }
+
+    .menu a {
+        text-decoration: none;
+        color: white;
+        font-size: 1.1rem;
+        display: block;
+        padding: 10px 15px;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .menu a.active {
+        background-color:#34ce896a; /* Hijau lebih tua */
+    }
+
+    .menu a:hover {
+        background-color: #34ce89;
+    }
+
+    /* Main Content Styling */
+    .content {
+        width: 80%;
+        padding: 20px;
+    }
+
+    h2 {
+        color: #2C3E50;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
+
+    th {
+        background: #008148; /* Hijau muda untuk header */
+        color: white;
+    }
+
+    td {
+        background: #fff;
+    }
+
+    /* Button Styling */
+    .btn, .btn-pay {
+        padding: 8px 15px;
+        background: #008148; /* Hijau lebih tua */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+        font-size: 1rem;
+    }
+
+    .btn:hover, .btn-pay:hover {
+        background: #008148; /* Hijau lebih tua */
+    }
+
+    .status-paid {
+        color: #008148; /* Warna hijau untuk status */
+        font-weight: bold;
+    }
+
+    .btn-track {
+    padding: 8px 15px;
+    background: #008148; /* Biru keabu-an */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 1rem;
+}
+
+.btn-track:hover {
+    background-color: #2C3E50;
+}
+
+</style>
+
+</body>
+</html>

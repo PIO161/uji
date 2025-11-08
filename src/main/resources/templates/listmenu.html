@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Menu</title>
+    <link rel="stylesheet" href="css/stylemenu.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+</head>
+
+<body th:attr="data-customer-id=${customerId}">
+<section class="products container" id="products">
+    <!-- Heading -->
+    <div class="heading">
+        <h2>Daftar Menu</h2>
+    </div>
+    <!-- Products Content -->
+    <div class="product-container">
+        <!-- Looping Data Menu -->
+        <div th:each="menu : ${menus}" class="product-box">
+            <i class='bx bx-heart heart-icon'></i>
+            <!-- Menggunakan th:src untuk gambar -->
+            <img th:src="@{'/img/' + ${menu.image}}" alt="Product Image">
+            <p th:text="'Promo: ' + ${menu.promo} + '%'">Promo</p>
+            <h2 th:text="${menu.namaMenu}">Nama Menu</h2>
+            <div class="product-info">
+                <span th:text="'Rp ' + ${menu.harga}">Harga</span>
+                <button class="btn-link" th:onclick="'tambahPesanan(' + ${menu.id} + ')'">
+                    <i class='bx bx-plus'></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="kembali">
+    <button type="button" class="btn" onclick="window.location.href='customer';">
+        Selesai
+     </button>
+    </div>
+</section>
+
+<script>
+    // Ambil customerId dari atribut data di <body> atau dari localStorage
+    const customerId = document.body.dataset.customerId || localStorage.getItem('customerId');
+
+    if (!customerId) {
+        window.location.href = "/customer"; // Redirect ke halaman login
+    }
+
+    // Fungsi untuk menambahkan pesanan
+    function tambahPesanan(menuId) {
+        fetch('/api/pesanan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                menuId: menuId,
+                customerId: customerId
+            }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add pesanan.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Pesanan berhasil ditambahkan!');
+                console.log('Pesanan:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menambahkan pesanan: ' + error.message);
+            });
+    }
+</script>
+
+</body>
+</html>
