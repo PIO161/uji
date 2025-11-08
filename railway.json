@@ -1,10 +1,10 @@
 {
   "build": {
     "commands": [
-      "./mvnw clean package -DskipTests"
+      "./mvnw clean package -DskipTests -f pom.xml"
     ]
   },
   "deploy": {
-    "startCommand": "java -jar target/*.jar"
+    "startCommand": "java -jar target/*.jar --server.port=${PORT}"
   }
 }
