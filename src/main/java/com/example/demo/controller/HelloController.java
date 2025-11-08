@@ -4,25 +4,18 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class HelloController {
-
-    @GetMapping("/")
-    @ResponseBody
-    public String index() {
-        return "Hello world wide web!";
-    }
 
     @GetMapping("/home.html")
     public String home() {
         return "home.html";
     }
 
-    @GetMapping("/ind.html")
-    public String ind() {
-        return "ind.html";
+    @GetMapping("/")
+    public String index() {
+        return "ind";
     }
 
     @GetMapping("/login.html")
